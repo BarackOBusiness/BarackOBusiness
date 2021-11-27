@@ -1,7 +1,7 @@
 - Hi, I’m @The-head-obamid
 - I do a lot of business (business)
 - I’m currently learning the intricacies of bruh
-- How to reach me: The Head Of Bussin (CEO)#6380
+- How to reach me: The Head Of Bussiness (CEO)#6380
 - Uhhh business.
 
 <!---
