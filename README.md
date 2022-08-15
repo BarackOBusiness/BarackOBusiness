@@ -1,4 +1,4 @@
-- Hi, I’m @The-head-obamid
+- Hi, I’m @BarackOBusiness
 - [REDACTED]
 - I’m currently learning the intricacies of bruh
 - How to reach me: Barack OBusiness#6380
