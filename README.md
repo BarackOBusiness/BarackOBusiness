@@ -1,7 +1,10 @@
 - Hi, I’m @BarackOBusiness
 - [REDACTED]
-- I’m currently learning the intricacies of bruh
-- How to reach me: Barack OBusiness#6380
+- I have finished learning the intracacies of bruh, I think. To all that followed me in this journey, I thank you.
+- How to reach me:
+  - Discord: @barackobusiness
+  - note to self: add more later
+  - note to deep future self, add more reliable methods that I will actually see and not chance thinking the person contacting me is a scammer
 - Uhhh business.
 
 <!---
