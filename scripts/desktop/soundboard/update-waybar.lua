@@ -1,0 +1,1 @@
+/home/obamid/source/projects/lua/soundboard/update-waybar.lua
