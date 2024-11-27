@@ -1,0 +1,5 @@
+# dinit service to start soundboard script
+type		= process
+command		= ${HOME}/.local/config/scripts/soundboard/main.lua ${SOUNDS_PATH}
+depends-on	= pipewire
+env-file	= ./config/soundboard.conf

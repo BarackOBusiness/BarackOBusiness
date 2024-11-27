@@ -3,7 +3,6 @@
 local posix = require("posix")
 local mod = {}
 
--- TODO: this function should also link effect-capture.out to my headphones
 function mod.main()
 	if #arg < 1 then
   	print("Usage:\t" .. arg[0] .. " /path/to/sounds")
@@ -65,6 +64,9 @@ function mod.main()
   	else
   		error("What the FUCK")
   end
+
+	-- Finally, link the effects to my headphones so I can hear them play
+	os.execute("pw-link effect-capture.out eq.in")
 
   while true do
   	posix.sleep(1000)
