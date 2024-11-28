@@ -1,5 +1,7 @@
 # dinit service to start soundboard script
 type		= process
-command		= ${HOME}/.local/config/scripts/soundboard/main.lua ${SOUNDS_PATH}
+command		= bash -c "$XDG_CONFIG_HOME/scripts/soundboard/main.lua $SOUNDS_PATH"
 depends-on	= pipewire
+log-type	= buffer
+logfile		= ${HOME}/.local/var/log/soundboard.log
 env-file	= ./config/soundboard.conf

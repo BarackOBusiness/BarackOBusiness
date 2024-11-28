@@ -13,6 +13,7 @@ function mod.main()
 
 	mod.page = 0.0
 	mod.rate = 1.0
+	mod.reverb = false
 	mod.reversed = false
 
   mod.rundir = os.getenv("XDG_RUNTIME_DIR") .. "/soundboard/"
@@ -30,6 +31,7 @@ function mod.main()
 	posix.signal(36, mod.reverse_handler)	-- reverse audio
 	posix.signal(37, mod.rate_handler)		-- slow audio
 	posix.signal(38, mod.rate_handler)		-- speed up audio
+	posix.signal(39, mod.reverb_handler)	-- reverb audio
 
 	-- Handle child process issue
 	posix.signal(posix.signal.SIGCHLD, mod.reap)
@@ -91,6 +93,11 @@ function mod.reverse_handler()
 	mod.update_state()
 end
 
+function mod.reverb_handler()
+	mod.reverb = not mod.reverb
+	mod.update_state()
+end
+
 -- The three functions above should call this
 function mod.update_state()
 	local state = string.format("%d", mod.page) .. "\n"
@@ -120,14 +127,38 @@ function mod.sound_handler(signum)
   end
 
 	local sound = (mod.page * 10) + (signum - 40)
-	sound = string.format("%d", sound)
+	sound = mod.path .. string.format("%d", sound)
+	sound = sound .. ".*"
 
+	local base = "ffmpeg -i " .. sound .. " "
+	local output = "-c pcm_s16le -f wav - "
 	local player = "| pw-play --target effect-capture.in -"
-	local effects = "asetrate=48000*" .. mod.rate .. ",aresample=48000"
+
+	local effects = ""
 	if mod.reversed then
-		effects = "areverse," .. effects
-	end
-	local ffmpeg = "ffmpeg -i " .. mod.path .. sound .. ".* -af '" .. effects .. "' -c pcm_s16le -f wav - 2> /dev/null "
+  	effects = "areverse"
+  end
+
+	if mod.rate ~= 1.0 then
+		if effects ~= "" then
+    	effects = effects .. ","
+    end
+  	effects = effects .. "asetrate=48000*" .. mod.rate .. ",aresample=48000"
+  end
+
+	local processing = ""
+	if mod.reverb then
+  	processing = "-i " .. mod.path .. "ir.wav" .. " -lavfi '" .. effects
+  	if effects ~= "" then
+    	processing = processing .. ","
+    end
+    processing = processing .. "apad=pad_dur=2.5,afir=dry=10' "
+  elseif effects ~= "" then
+  	processing = "-af '" .. effects .. "' "
+  end
+
+	local ffmpeg = base .. processing .. output
+	print(ffmpeg) -- quick debug
 
 	os.execute(ffmpeg .. player)
 	os.exit(0)
