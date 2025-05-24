@@ -1,4 +1,4 @@
-# dinit service to start soundboard script
+# dinit service to start soundboard script (still can't figure out why this one doesn't work)
 type		= process
 command		= bash -c "$XDG_CONFIG_HOME/scripts/soundboard/main.lua $SOUNDS_PATH"
 depends-on	= pipewire

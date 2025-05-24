@@ -13,6 +13,7 @@ function mod.main()
 
 	mod.page = 0.0
 	mod.rate = 1.0
+	mod.bend = 0.0
 	mod.reverb = false
 	mod.reversed = false
 
@@ -32,6 +33,9 @@ function mod.main()
 	posix.signal(37, mod.rate_handler)		-- slow audio
 	posix.signal(38, mod.rate_handler)		-- speed up audio
 	posix.signal(39, mod.reverb_handler)	-- reverb audio
+	posix.signal(51, mod.bend_handler)		-- bend audio down
+	posix.signal(52, mod.bend_handler)		-- bend audio up
+	posix.signal(53, mod.bend_handler)		-- reset audio bend
 
 	-- Handle child process issue
 	posix.signal(posix.signal.SIGCHLD, mod.reap)
@@ -98,11 +102,24 @@ function mod.reverb_handler()
 	mod.update_state()
 end
 
+function mod.bend_handler(signum)
+	if signum == 53 then
+		mod.bend = 0
+	elseif signum > 51 then
+		mod.bend = mod.bend + 200
+	else
+		mod.bend = mod.bend - 200
+	end
+	mod.update_state()
+end
+
 -- The three functions above should call this
 function mod.update_state()
 	local state = string.format("%d", mod.page) .. "\n"
 	state = state .. mod.rate .. "\n"
+	state = state .. mod.bend .. "\n"
 	state = state .. tostring(mod.reversed) .. "\n"
+	state = state .. tostring(mod.reverb) .. "\n"
 
 	local rundir = os.getenv("XDG_RUNTIME_DIR") .. "/soundboard/"
 	local statefile = io.open(rundir .. "state", "w")
@@ -130,37 +147,40 @@ function mod.sound_handler(signum)
 	sound = mod.path .. string.format("%d", sound)
 	sound = sound .. ".*"
 
-	local base = "ffmpeg -i " .. sound .. " "
-	local output = "-c pcm_s16le -f wav - "
+	local base = "sox " .. sound .. " -t wav - "
 	local player = "| pw-play --target effect-capture.in -"
 
 	local effects = ""
 	if mod.reversed then
-  	effects = "areverse"
+  	effects = "reverse "
   end
 
 	if mod.rate ~= 1.0 then
-		if effects ~= "" then
-    	effects = effects .. ","
-    end
-  	effects = effects .. "asetrate=48000*" .. mod.rate .. ",aresample=48000"
+  	effects = effects .. "speed " .. mod.rate .. " "
   end
 
-	local processing = ""
+	-- in the case that audio is bent, we're just going to pitch it down massively
+	-- across the duration of the audio, so we need to get that duration, then
+	-- find the real duration by the current set rate, then finally formulate
+	-- the bend filter
+	if mod.bend ~= 0 then
+		local soxi = io.popen("soxi -D " .. sound, "r")
+		if soxi then
+			local file_duration = soxi:read("l")
+			local duration = tonumber(file_duration) / mod.rate
+
+			effects = effects .. "bend 0," .. mod.bend .. "," .. duration .. " "
+			print(effects)
+		end
+	end
+
 	if mod.reverb then
-  	processing = "-i " .. mod.path .. "ir.wav" .. " -lavfi '" .. effects
-  	if effects ~= "" then
-    	processing = processing .. ","
-    end
-    processing = processing .. "apad=pad_dur=2.5,afir=dry=10' "
-  elseif effects ~= "" then
-  	processing = "-af '" .. effects .. "' "
+		effects = effects .. "pad 0 4 reverb 80 50 100 "
   end
 
-	local ffmpeg = base .. processing .. output
-	print(ffmpeg) -- quick debug
+	local sox = base .. effects
 
-	os.execute(ffmpeg .. player)
+	os.execute(sox .. player)
 	os.exit(0)
 end
 

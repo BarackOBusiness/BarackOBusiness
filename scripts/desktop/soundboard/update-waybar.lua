@@ -20,13 +20,22 @@ end
 
 local page = stats_file:read("l")
 local rate = stats_file:read("l")
+local bend = stats_file:read("l")
 local is_reversed = stats_file:read("l")
+local is_reverbed = stats_file:read("l")
 
-local reversed_symbol = ""
+local reversed = ""
 if is_reversed == "true" then
-	reversed_symbol = "◀"
+	reversed = "◀"
 else
-	reversed_symbol = "▶"
+	reversed = "▶"
 end
 
-print(page .. " 󱗖 " .. rate .. " 󰞌 " .. reversed_symbol .. "\n")
+local reverbed = ""
+if is_reverbed == "true" then
+	reverbed = "〰️"
+else
+	reverbed = "—─"
+end
+
+print(page .. " 󱗖 " .. rate .. " 󰞌 " .. bend .. " ∿ " .. reversed .. " " .. reverbed .. "\n")
