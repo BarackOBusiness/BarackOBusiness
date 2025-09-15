@@ -14,6 +14,8 @@ function mod.main()
 	mod.page = 0.0
 	mod.rate = 1.0
 	mod.bend = 0.0
+	mod.echo = false
+	mod.tempo = false
 	mod.reverb = false
 	mod.reversed = false
 
@@ -33,6 +35,8 @@ function mod.main()
 	posix.signal(37, mod.rate_handler)		-- slow audio
 	posix.signal(38, mod.rate_handler)		-- speed up audio
 	posix.signal(39, mod.reverb_handler)	-- reverb audio
+	posix.signal(54, mod.echo_handler)		-- insert echoes
+	posix.signal(50, mod.rate_switch)			-- tempo toggle
 	posix.signal(51, mod.bend_handler)		-- bend audio down
 	posix.signal(52, mod.bend_handler)		-- bend audio up
 	posix.signal(53, mod.bend_handler)		-- reset audio bend
@@ -92,6 +96,10 @@ function mod.rate_handler(signum)
 	mod.update_state()
 end
 
+function mod.rate_switch()
+	mod.tempo = not mod.tempo
+end
+
 function mod.reverse_handler()
 	mod.reversed = not mod.reversed -- toggle reversed to opposite
 	mod.update_state()
@@ -99,6 +107,11 @@ end
 
 function mod.reverb_handler()
 	mod.reverb = not mod.reverb
+	mod.update_state()
+end
+
+function mod.echo_handler()
+	mod.echo = not mod.echo
 	mod.update_state()
 end
 
@@ -156,7 +169,11 @@ function mod.sound_handler(signum)
   end
 
 	if mod.rate ~= 1.0 then
-  	effects = effects .. "speed " .. mod.rate .. " "
+		if mod.tempo then
+			effects = effects .. "tempo " .. mod.rate .. " 40 "
+		else
+			effects = effects .. "speed " .. mod.rate .. " "
+		end
   end
 
 	-- in the case that audio is bent, we're just going to pitch it down massively
@@ -175,6 +192,10 @@ function mod.sound_handler(signum)
 	end
 
 	if mod.reverb then
+		-- Only echo when reverb is also enabled
+		if mod.echo then
+			effects = effects .. "echos 1.0 0.75 900 0.3 900 0.2 900 0.1 900 0.03 "
+		end
 		effects = effects .. "pad 0 4 reverb 80 50 100 "
   end
 
