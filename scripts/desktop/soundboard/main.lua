@@ -141,12 +141,7 @@ function mod.update_state()
   	statefile:close()
   end
 
-	local waybar_pid = io.open(rundir .. "waybar", "r")
-	if not waybar_pid then
-  	return
-  end
-  os.execute("kill -s 35 " .. waybar_pid:read("l"))
-  waybar_pid:close()
+  os.execute("polybar-msg action soundboard hook 0")
 end
 
 function mod.sound_handler(signum)
