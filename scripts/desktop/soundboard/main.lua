@@ -93,6 +93,10 @@ end
 function mod.rate_handler(signum)
 	local rate_delta = 2 * (signum - 37.5)
 	mod.rate = mod.rate * 1.25^rate_delta
+	-- Clamp rate to 1.0 if we're roughly there to avoid floating point drift
+	if mod.rate > 0.9 and mod.rate < 1.1 then
+		mod.rate = 1.0
+	end
 	mod.update_state()
 end
 
@@ -155,8 +159,7 @@ function mod.sound_handler(signum)
 	sound = mod.path .. string.format("%d", sound)
 	sound = sound .. ".*"
 
-	local base = "sox " .. sound .. " -t wav - "
-	local player = "| pw-play --target effect-capture.in -"
+	local base = "env PULSE_SINK=effect-capture.in play " .. sound .. " "
 
 	local effects = ""
 	if mod.reversed then
@@ -194,9 +197,9 @@ function mod.sound_handler(signum)
 		effects = effects .. "pad 0 4 reverb 80 50 100 "
   end
 
-	local sox = base .. effects
+	local player = base .. effects
 
-	os.execute(sox .. player)
+	os.execute(player)
 	os.exit(0)
 end
 
