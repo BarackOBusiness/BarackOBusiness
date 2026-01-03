@@ -1,6 +1,7 @@
 #!/bin/env lua
 
 local posix = require("posix")
+local config = require("config")
 local mod = {}
 
 function mod.main()
@@ -75,8 +76,8 @@ function mod.main()
   		error("What the FUCK")
   end
 
-	-- Finally, link the effects to my headphones so I can hear them play
-	os.execute("pw-link effect-capture.out eq.in")
+  -- Link effect loopback to your audio device to hear the sound effects
+  os.execute("pw-link " .. config.loopback .. " " .. config.playback)
 
   while true do
   	posix.sleep(1000)
@@ -155,8 +156,8 @@ function mod.sound_handler(signum)
 	sound = mod.path .. string.format("%d", sound)
 	sound = sound .. ".*"
 
-	local base = "sox " .. sound .. " -t wav - "
-	local player = "| pw-play --target effect-capture.in -"
+	local base = "sox " .. sound .. " -t wav -"
+	local player = "pw-play - --target " .. config.target
 
 	local effects = ""
 	if mod.reversed then
@@ -196,7 +197,7 @@ function mod.sound_handler(signum)
 
 	local sox = base .. effects
 
-	os.execute(sox .. player)
+	os.execute(sox .. " | " .. player)
 	os.exit(0)
 end
 
