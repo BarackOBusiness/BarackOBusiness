@@ -201,7 +201,9 @@ function mod.sound_handler(signum)
 		effects = effects .. "pad 0 4 reverb 80 50 100 "
   end
 
-	os.execute(base .. " | " .. player)
+	local sox = base .. " " .. effects
+
+	os.execute(sox .. " | " .. player)
 	os.exit(0)
 end
 
