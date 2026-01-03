@@ -22,7 +22,7 @@ The script exports its own pid to a file in `$XDG_RUNTIME_DIR/soundboard/` to fa
 > Sounds may not be named 0 or end in 0 (e.g., 0.m4a and 10.mka would not be allowed). See usage section for details.
 
 ## Dependencies
-- lua (only tested on 5.4)
+- lua (tested on 5.4 and luajit)
 - luaposix, which can be installed via [luarocks](https://luarocks.org/): `luarocks install luaposix`
 - sox
 - pipewire w/ the pw-play utility
@@ -45,6 +45,7 @@ Signals include the ranges 34-39,41-49, and 51-53, signal numbers in the 40s pla
 |51|Set audio bend 1 semitone down   |
 |52|Set audio bend 1 semitone up     |
 |53|Reset audio bending              |
+|54|Insert echoes while reverberating|
 |41|Play sound effect named x1.*     |
 |42|Play sound effect named x2.*     |
 |43|Play sound effect named x3.*     |

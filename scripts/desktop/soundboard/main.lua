@@ -76,6 +76,8 @@ function mod.main()
   		error("What the FUCK")
   end
 
+  -- Link your microphone to the soundboard source to merge the audio
+  os.execute("pw-link " .. config.mic .. " " .. config.source)
   -- Link effect loopback to your audio device to hear the sound effects
   os.execute("pw-link " .. config.loopback .. " " .. config.playback)
 
@@ -213,10 +215,3 @@ function mod.reap()
 end
 
 mod.main()
-
--- TODO for this: 
--- * make pw-play take in piped input from ffmpeg
--- * make a more versatile builder for the command
--- * segment signal handler at 38
--- posix.signal(37, lib.handler) -- multiply rate by 1.25^-1
--- posix.signal(39, lib.handler) -- multiply rate by 1.25^1
